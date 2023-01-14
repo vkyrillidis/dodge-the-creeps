@@ -1,4 +1,5 @@
 using Godot;
+using System;
 
 public class Main : Node
 {
@@ -71,6 +72,15 @@ public class Main : Node
 
 		// Create a Mob instance and add it to the scene.
 		var mob = (Mob)mobScene.Instance();
+
+		// Randomly increase Mob size by scaling the animated sprite and
+		// collision shape.
+		var mobAnimatedSprite = mob.GetNode<AnimatedSprite>("AnimatedSprite");
+		var mobCollisionShape2D = mob.GetNode<CollisionShape2D>("CollisionShape2D");
+		var randomScale = Convert.ToSingle(GD.RandRange(0.1, 1));
+		var scaleVector = new Vector2(randomScale, randomScale);
+		mobAnimatedSprite.Scale = scaleVector;
+		mobCollisionShape2D.Scale = scaleVector;
 		AddChild(mob);
 
 		// Set the mob's direction perpendicular to the path direction.
