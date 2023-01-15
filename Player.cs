@@ -10,6 +10,12 @@ public class Player : Area2D
 
 	public Vector2 screenSize; // Size of the game window.
 
+	[Export]
+	public int shieldUpTime = 2;
+	[Export]
+	public int shieldCooldown = 10;
+	public bool shieldUsable = true;
+
 	public override void _Ready()
 	{
 		screenSize = GetViewportRect().Size;
@@ -70,6 +76,15 @@ public class Player : Area2D
 			animatedSprite.Animation = "up";
 			animatedSprite.FlipV = velocity.y > 0;
 		}
+		
+		if (Input.IsActionJustPressed("space"))
+		{
+			if (shieldUsable)
+			{
+				GD.Print("Using shield");
+				useShield();
+			}
+		}
 	}
 
 	public void Start(Vector2 pos)
@@ -85,5 +100,44 @@ public class Player : Area2D
 		EmitSignal(nameof(Hit));
 		// Must be deferred as we can't change physics properties on a physics callback.
 		GetNode<CollisionShape2D>("CollisionShape2D").SetDeferred("disabled", true);
+	}
+	
+	public void useShield() 
+	{
+		shieldUsable = false;
+		// Show the shield
+		var shieldSprite = GetNode<AnimatedSprite>("ShieldAnimatedSprite");
+		shieldSprite.Visible = true;
+
+		// Disable the collision shape of the player
+		var playerCollisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
+		playerCollisionShape.Disabled = true;
+
+		// Fire timer shield uptime
+		var shieldUptimeTimer = GetNode<Timer>("ShieldUptimeTimer");
+		shieldUptimeTimer.OneShot = true;
+		shieldUptimeTimer.WaitTime = shieldUpTime;
+		shieldUptimeTimer.Start();
+
+		// Fire timer shieldCooldownTimer
+		var shieldCooldownTimer = GetNode<Timer>("ShieldCooldownTimer");
+		shieldCooldownTimer.OneShot = true;
+		shieldCooldownTimer.WaitTime = shieldCooldown;
+		shieldCooldownTimer.Start();
+	}
+
+	private void _on_ShieldCooldownTimer_timeout()
+	{
+		GD.Print("ShieldCooldownTimer called");
+		shieldUsable = true;
+	}
+
+	private void _on_ShieldUptimeTimer_timeout()
+	{
+		GD.Print("ShieldUptimeTimer called");
+		var playerCollisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
+		playerCollisionShape.Disabled = false;
+		var shieldSprite = GetNode<AnimatedSprite>("ShieldAnimatedSprite");
+		shieldSprite.Visible = false;
 	}
 }

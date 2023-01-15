@@ -1,10 +1,11 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Player.cs" type="Script" id=1]
 [ext_resource path="res://art/playerGrey_walk1.png" type="Texture" id=2]
 [ext_resource path="res://art/playerGrey_walk2.png" type="Texture" id=3]
 [ext_resource path="res://art/playerGrey_up1.png" type="Texture" id=4]
 [ext_resource path="res://art/playerGrey_up2.png" type="Texture" id=5]
+[ext_resource path="res://shield.png" type="Texture" id=6]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -45,6 +46,14 @@ scale = 0.75
 scale_curve = SubResource( 6 )
 color_ramp = SubResource( 4 )
 
+[sub_resource type="SpriteFrames" id=8]
+animations = [ {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
 [node name="Player" type="Area2D"]
 z_index = 10
 script = ExtResource( 1 )
@@ -69,4 +78,15 @@ local_coords = false
 process_material = SubResource( 7 )
 texture = ExtResource( 2 )
 
+[node name="ShieldCooldownTimer" type="Timer" parent="."]
+
+[node name="ShieldUptimeTimer" type="Timer" parent="."]
+
+[node name="ShieldAnimatedSprite" type="AnimatedSprite" parent="."]
+visible = false
+scale = Vector2( 0.110937, 0.099681 )
+frames = SubResource( 8 )
+
 [connection signal="body_entered" from="." to="." method="OnPlayerBodyEntered"]
+[connection signal="timeout" from="ShieldCooldownTimer" to="." method="_on_ShieldCooldownTimer_timeout"]
+[connection signal="timeout" from="ShieldUptimeTimer" to="." method="_on_ShieldUptimeTimer_timeout"]
